@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 # Commit often
 # TDD as much as I can
 
@@ -18,6 +16,10 @@
 # 1. Create board with unicode characters
 # Board should be an 8x8 matrix: 8 arrays, named row1, row2, row3, ..., row8, each one containig ai, bi, ci, ..., hi, where i is the row number. The first array on the board matrix is row8, and the last one row1
 
+# frozen_string_literal: true
+
+include './pieces'
+
 WP = '♙'
 WK = '♔'
 WQ = '♕'
@@ -32,15 +34,19 @@ BB = '♝'
 BN = '♞'
 SQUARE = '·'
 SELECTED_SQUARE = 'x'
+LETTERS = %w[a b c d e f g h]
 
 class Game
   def initialize
     @board = []
     @board_to_print = Array.new(9) { Array.new(9, SQUARE) }
-    letters = %w[a b c d e f g h]
+    populate_boards
+  end
+
+  def populate_boards
     8.times do |i|
-      letters.each do |letter|
-        @board << [letter, i + 1]
+      8.times do |j|
+        @board << [i, j]
       end
     end
     @board_to_print.each_with_index do |arr, i|
@@ -52,30 +58,6 @@ class Game
   def print_board
     @board_to_print.each do |row|
       print "#{row.join(' ')}\n"
-    end
-  end
-end
-
-class Knight
-  def initialize(pos)
-    @moves = []
-    @pos = pos
-  end
-
-  def create_moves
-    (1..2).each do |i|
-      (1..2).each do |j|
-        skip if i == j
-
-        unless @pos[0] + i > 7
-          @moves.push(Position.new([@pos[0] + i, @pos[1] + j], self)) unless @pos[1] + j > 7
-          @moves.push(Position.new([@pos[0] + i, @pos[1] - j], self)) unless @pos[1] - j < 0
-        end
-        unless @pos[0] - i < 0
-          @moves.push(Position.new([@pos[0] - i, @pos[1] + j], self)) unless @pos[1] + j > 7
-          @moves.push(Position.new([@pos[0] - i, @pos[1] - j], self)) unless @pos[1] - j < 0
-        end
-      end
     end
   end
 end

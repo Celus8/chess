@@ -53,7 +53,14 @@ class Queen
     create_moves
   end
 
-  def create_moves; end
+  def create_moves
+    (-7..7).each do |i|
+      (-7..7).each do |j|
+        illegal = @pos[0] + i > 7 || @pos[1] + j > 7 || @pos[0] + i < 0 || @pos[1] + j < 0 || (i.abs != j.abs && i != 0 && j != 0)
+        @moves.push([@pos[0] + i, @pos[1] + j]) unless illegal
+      end
+    end
+  end
 end
 
 class Rook
@@ -66,7 +73,16 @@ class Rook
     create_moves
   end
 
-  def create_moves; end
+  def create_moves
+    (-7..7).each do |i|
+      illegal = @pos[0] + i > 7 || @pos[0] + i < 0
+      @moves.push([@pos[0] + i, @pos[1]]) unless illegal
+    end
+    (-7..7).each do |i|
+      illegal = @pos[1] + i > 7 || @pos[1] + i < 0
+      @moves.push([@pos[0], @pos[1] + i]) unless illegal
+    end
+  end
 end
 
 class Bishop
@@ -79,7 +95,14 @@ class Bishop
     create_moves
   end
 
-  def create_moves; end
+  def create_moves
+    (-7..7).each do |i|
+      (-7..7).each do |j|
+        illegal = @pos[0] + i > 7 || @pos[1] + j > 7 || @pos[0] + i < 0 || @pos[1] + j < 0 || i.abs != j.abs
+        @moves.push([@pos[0] + i, @pos[1] + j]) unless illegal
+      end
+    end
+  end
 end
 
 class Knight
@@ -95,16 +118,13 @@ class Knight
   def create_moves
     (1..2).each do |i|
       (1..2).each do |j|
-        skip if i == j
+        illegal = @pos[0] + i > 7 || @pos[1] + j > 7 || @pos[0] + i < 0 || @pos[1] + j < 0 || i == j
+        next if illegal
 
-        unless @pos[0] + i > 7
-          @moves.push([@pos[0] + i, @pos[1] + j]) unless @pos[1] + j > 7
-          @moves.push([@pos[0] + i, @pos[1] - j]) unless @pos[1] - j < 0
-        end
-        unless @pos[0] - i < 0
-          @moves.push([@pos[0] - i, @pos[1] + j]) unless @pos[1] + j > 7
-          @moves.push([@pos[0] - i, @pos[1] - j]) unless @pos[1] - j < 0
-        end
+        @moves.push([@pos[0] + i, @pos[1] + j])
+        @moves.push([@pos[0] + i, @pos[1] - j])
+        @moves.push([@pos[0] - i, @pos[1] + j])
+        @moves.push([@pos[0] - i, @pos[1] - j])
       end
     end
   end

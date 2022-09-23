@@ -67,10 +67,70 @@ RSpec.describe King do
   end
 end
 
-RSpec.describe Queen do; end
+RSpec.describe Queen do
+  context 'when there are no pieces around' do
+    subject { described_class.new([3, 3]) }
 
-RSpec.describe Rook do; end
+    it 'can move in any direction as many times as she wants' do
+      expect(subject.moves).to include([3, 7], [3, 0], [6, 6], [4, 3], [0, 0], [5, 3], [3, 2], [2, 4], [4, 2], [6, 0])
+    end
 
-RSpec.describe Bishop do; end
+    it "can't move in a not straight direction" do
+      expect(subject.moves).not_to include([2, 5], [7, 2])
+    end
+  end
+end
 
-RSpec.describe Knight do; end
+RSpec.describe Rook do
+  context 'when there are no pieces around' do
+    subject { described_class.new([3, 3]) }
+
+    it 'can move as much as wanted horizontally and vertically' do
+      expect(subject.moves).to include([3, 7], [3, 0], [6, 3], [4, 3], [0, 3], [5, 3], [3, 2], [3, 4])
+    end
+
+    it "can't move in a not straight direction" do
+      expect(subject.moves).not_to include([2, 5], [7, 2])
+    end
+
+    it "can't move diagonally" do
+      expect(subject.moves).not_to include([2, 2], [0, 0], [6, 0], [7, 7])
+    end
+  end
+end
+
+RSpec.describe Bishop do
+  context 'when there are no pieces around' do
+    subject { described_class.new([3, 3]) }
+
+    it "can't move horizontally and vertically" do
+      expect(subject.moves).not_to include([3, 7], [3, 0], [6, 3], [4, 3], [0, 3], [5, 3], [3, 2], [3, 4])
+    end
+
+    it "can't move in a not straight direction" do
+      expect(subject.moves).not_to include([2, 5], [7, 2])
+    end
+
+    it 'can move as much as wanted diagonally' do
+      expect(subject.moves).to include([2, 2], [0, 0], [6, 0], [7, 7], [1, 5])
+    end
+  end
+end
+
+RSpec.describe Knight do
+  context 'when there are no pieces around' do
+    subject { described_class.new([3, 3]) }
+
+    it "can't move horizontally and vertically" do
+      expect(subject.moves).not_to include([3, 7], [3, 0], [6, 3], [4, 3], [0, 3], [5, 3], [3, 2], [3, 4])
+    end
+
+    it "can't move diagonally" do
+      expect(subject.moves).not_to include([2, 2], [0, 0], [6, 0], [7, 7], [1, 5])
+    end
+
+    it 'can move in knight jumps' do
+      expect(subject.moves).to include([4, 5], [2, 5], [4, 1], [2, 1], [5, 2], [1, 2])
+    end
+  end
+end

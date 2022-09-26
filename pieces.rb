@@ -11,6 +11,7 @@ class Pawn
     @pos = pos
     @in_initial_pos = in_initial_pos?
     create_moves
+    @icon = color == 1 ? '♙' : '♟'
   end
 
   def create_moves
@@ -31,6 +32,7 @@ class King
     @color = color
     @pos = pos
     create_moves
+    @icon = color == 1 ? '♔' : '♚'
   end
 
   def create_moves
@@ -51,6 +53,7 @@ class Queen
     @color = color
     @pos = pos
     create_moves
+    @icon = color == 1 ? '♕' : '♛'
   end
 
   def create_moves
@@ -71,6 +74,7 @@ class Rook
     @color = color
     @pos = pos
     create_moves
+    @icon = color == 1 ? '♖' : '♜'
   end
 
   def create_moves
@@ -93,6 +97,7 @@ class Bishop
     @color = color
     @pos = pos
     create_moves
+    @icon = color == 1 ? '♗' : '♝'
   end
 
   def create_moves
@@ -113,6 +118,7 @@ class Knight
     @color = color
     @pos = pos
     create_moves
+    @icon = color == 1 ? '♘' : '♞'
   end
 
   def create_moves

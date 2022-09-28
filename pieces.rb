@@ -3,7 +3,8 @@
 # frozen_string_literal: true
 
 class Pawn
-  attr_reader :moves
+  attr_reader :moves, :icon
+  attr_accessor :pos
 
   def initialize(pos, color = 1)
     @moves = []
@@ -22,10 +23,15 @@ class Pawn
   def in_initial_pos?
     @color == 1 ? @pos[1] == 1 : @pos[1] == 6
   end
+
+  def kill
+    @pos = 'dead'
+  end
 end
 
 class King
-  attr_reader :moves
+  attr_reader :moves, :icon
+  attr_accessor :pos
 
   def initialize(pos, color = 1)
     @moves = []
@@ -43,10 +49,15 @@ class King
       end
     end
   end
+
+  def kill
+    @pos = 'dead'
+  end
 end
 
 class Queen
-  attr_reader :moves
+  attr_reader :moves, :icon
+  attr_accessor :pos
 
   def initialize(pos, color = 1)
     @moves = []
@@ -64,10 +75,15 @@ class Queen
       end
     end
   end
+
+  def kill
+    @pos = 'dead'
+  end
 end
 
 class Rook
-  attr_reader :moves
+  attr_reader :moves, :icon
+  attr_accessor :pos
 
   def initialize(pos, color = 1)
     @moves = []
@@ -87,10 +103,15 @@ class Rook
       @moves.push([@pos[0], @pos[1] + i]) unless illegal
     end
   end
+
+  def kill
+    @pos = 'dead'
+  end
 end
 
 class Bishop
-  attr_reader :moves
+  attr_reader :moves, :icon
+  attr_accessor :pos
 
   def initialize(pos, color = 1)
     @moves = []
@@ -108,10 +129,15 @@ class Bishop
       end
     end
   end
+
+  def kill
+    @pos = 'dead'
+  end
 end
 
 class Knight
-  attr_reader :moves
+  attr_reader :moves, :icon
+  attr_accessor :pos
 
   def initialize(pos, color = 1)
     @moves = []
@@ -133,5 +159,9 @@ class Knight
         @moves.push([@pos[0] - i, @pos[1] - j])
       end
     end
+  end
+
+  def kill
+    @pos = 'dead'
   end
 end

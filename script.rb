@@ -39,17 +39,96 @@ LETTERS = %w[a b c d e f g h]
 
 class Game
   def initialize
-    @number_board = []
+    @all_moves = []
     @board_to_print = Array.new(9) { Array.new(9, SQUARE) }
     populate_boards
     @white_pieces = []
     @black_pieces = []
+    @selected_piece = nil
+    @quit = false
+    create_pieces
+  end
+
+  def play
+    update_board
+    print_board
+    make_play until @quit
+  end
+
+  # Fer que es dibuixin les peces a la terminal. El proper pas és detectar input del jugador, canviar les peces corresponents de pos, tenint en compte els allowed moves, fer update board i tornar a printear
+
+  def make_play
+    puts 'Select a piece to move'
+    make_selection
+    return if @quit
+
+    puts 'Select a place to move it'
+    make_move
+    return if @quit
+
+    print_board
+  end
+
+  def make_selection
+    selection = gets.chomp
+    if check_quit(selection)
+      @quit = true
+      return
+    end
+    return if select_white_piece(input_to_move(selection))
+
+    puts 'Select a valid position!'
+    make_selection
+  end
+
+  def make_move
+    move = gets.chomp
+    if check_quit(move)
+      @quit = true
+      return
+    end
+    return if move_white_piece(input_to_move(move))
+
+    puts 'Select a valid move!'
+    make_move
+  end
+
+  def input_to_move(move)
+    move.split('').map(&:to_i)
+  end
+
+  def select_white_piece(move)
+    @white_pieces.each do |piece|
+      if move == piece.pos
+        @selected_piece = piece
+        return true
+      end
+    end
+    false
+  end
+
+  def move_white_piece(move)
+    if @selected_piece.moves.include?(move)
+      @board_to_print[7 - @selected_piece.pos[1]][@selected_piece.pos[0] + 1] = SQUARE
+      @selected_piece.pos = move
+      @selected_piece.create_moves
+      update_board
+      return true
+    end
+    false
+  end
+
+  def select_black_piece; end
+
+  def check_quit(input)
+    return true if input == 'quit' || input == 'exit'
+    false
   end
 
   def populate_boards
     8.times do |i|
       8.times do |j|
-        @number_board << [i, j]
+        @all_moves << [i, j]
       end
     end
     # @board_to_print.each_with_index do |arr, i|
@@ -60,53 +139,56 @@ class Game
     # Provisional printed board, for easier coding, the final one is above
     @board_to_print.each_with_index do |arr, i|
       arr[0] = 7 - i
-
     end
     @board_to_print[8] = [' '] + %w[0 1 2 3 4 5 6 7]
+  end
+
+  def update_board
+    @all_moves.each do |square|
+      @white_pieces.each do |piece|
+        if piece.pos == square
+          @board_to_print[7 - square[1]][square[0] + 1] = piece.icon
+        end
+      end
+      @black_pieces.each do |piece|
+        if piece.pos == square
+          @board_to_print[7 - square[1]][square[0] + 1] = piece.icon
+        end
+      end
+    end
   end
 
   def create_pieces
     create_white_pieces
     create_black_pieces
-
   end
 
   def create_white_pieces
-    wp1 = Pawn.new([0, 1])
-    wp2 = Pawn.new([1, 1])
-    wp3 = Pawn.new([2, 1])
-    wp4 = Pawn.new([3, 1])
-    wp5 = Pawn.new([4, 1])
-    wp6 = Pawn.new([5, 1])
-    wp7 = Pawn.new([6, 1])
-    wp8 = Pawn.new([7, 1])
-    wk = King.new([4, 0])
-    wq = Queen.new([3, 0])
-    wr1 = Rook.new([0, 0])
-    wr2 = Rook.new([7, 0])
-    wb1 = Bishop.new([2, 0])
-    wb2 = Bishop.new([5, 0])
-    wn1 = Knight.new([1, 0])
-    wn2 = Knight.new([6, 0])
+    8.times do |i|
+      @white_pieces.push(Pawn.new([i, 1]))
+    end
+    @white_pieces.push(King.new([4, 0]))
+    @white_pieces.push(Queen.new([3, 0]))
+    @white_pieces.push(Rook.new([0, 0]))
+    @white_pieces.push(Rook.new([7, 0]))
+    @white_pieces.push(Bishop.new([2, 0]))
+    @white_pieces.push(Bishop.new([5, 0]))
+    @white_pieces.push(Knight.new([1, 0]))
+    @white_pieces.push(Knight.new([6, 0]))
   end
 
   def create_black_pieces
-    bp1 = Pawn.new([0, 6], -1)
-    bp2 = Pawn.new([1, 6], -1)
-    bp3 = Pawn.new([2, 6], -1)
-    bp4 = Pawn.new([3, 6], -1)
-    bp5 = Pawn.new([4, 6], -1)
-    bp6 = Pawn.new([5, 6], -1)
-    bp7 = Pawn.new([6, 6], -1)
-    bp8 = Pawn.new([7, 6], -1)
-    bk = King.new([4, 7], -1)
-    bq = Queen.new([3, 7], -1)
-    br1 = Rook.new([0, 7], -1)
-    br2 = Rook.new([7, 7], -1)
-    bb1 = Bishop.new([2, 7], -1)
-    bb2 = Bishop.new([5, 7], -1)
-    bn1 = Knight.new([1, 7], -1)
-    bn2 = Knight.new([6, 7], -1)
+    8.times do |i|
+      @black_pieces.push(Pawn.new([i, 6], -1))
+    end
+    @black_pieces.push(King.new([4, 7], -1)) 
+    @black_pieces.push(Queen.new([3, 7], -1))
+    @black_pieces.push(Rook.new([0, 7], -1))
+    @black_pieces.push(Rook.new([7, 7], -1))
+    @black_pieces.push(Bishop.new([2, 7], -1))
+    @black_pieces.push(Bishop.new([5, 7], -1))
+    @black_pieces.push(Knight.new([1, 7], -1))
+    @black_pieces.push(Knight.new([6, 7], -1))
   end
 
   def print_board
@@ -117,4 +199,4 @@ class Game
 end
 
 game = Game.new
-game.print_board
+game.play

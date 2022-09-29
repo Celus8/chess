@@ -5,15 +5,20 @@
 # Every piece is an object, which has an array of legal moves. When the player moves, unless the move he choses is in that array, a warning will appear.
 
 # Steps:
-# 1. Create board with unicode characters **
-# 2. Make base movements for each piece **
-# 3. Make player movement mechanic for one player
-# 4. Make possibility to quit game
-# 5. Make 2 player turn-based behaviour
-# 6. Implement special features (pawn reaching end, enroc)
-# 7. Implement win or draw conditions
-# 8. Implement saving and loading of games
-# 9. Implement AI that makes random moves
+
+# 1.
+# Make movements to other pieces of your own team illegal.
+# Make traspassing of pieces illegal except for the rook.
+# Make movements to other player's pieces legal unless it's king. Assign their pos to 'dead' (or remove the instance variable), and remove them from available pieces.
+# At the beginning of the game and each time a move is made, for each pair of pieces of the same team, remove one's position and every other position from then on (according to each piece) from the other's moves. If it's the knight, remove only positions. For enemy pieces, only remove every other position from then on. For the knight, do nothing. For the pawn, remove also positions, and add diagonal moves if there are enemy pieces. For all of this, exclude the king being killed (remove his pos).
+
+# 2.
+# Make pawn promotion. If pawn position is in the last row, pawn is dead and a message displays what to replace it with. The player writes what to replace it with and a new piece is created with the same pos.
+# Make castling. If the king hasn't moved yet and isn't in check (and will not be in check during the passage) it can castle, and the rook moves at the same time.
+# Make 2 player turn-based behaviour, displaying a message each time. Make a @current_player variable that takes the values 'black' or 'white'. Add conditional to play method.
+# Winning: Remove from king all movements that are in one of the other team's allowed moves. If his pos is one of the other team's allowed moves, a message is displayed and only the king can be moved. If his pos is one of the other team's allowed moves and he has no movements, the other team wins. The game ends and a message is displayed to show who won.
+# Implement saving and loading of games
+# Implement AI that makes random moves
 
 # 1. Create board with unicode characters
 
@@ -55,8 +60,6 @@ class Game
     make_play until @quit
   end
 
-  # Fer que es dibuixin les peces a la terminal. El proper pas és detectar input del jugador, canviar les peces corresponents de pos, tenint en compte els allowed moves, fer update board i tornar a printear
-
   def make_play
     puts 'Select a piece to move'
     make_selection
@@ -69,7 +72,7 @@ class Game
     print_board
   end
 
-  def make_selection
+  def make_selection_white
     selection = gets.chomp
     if check_quit(selection)
       @quit = true
@@ -81,20 +84,16 @@ class Game
     make_selection
   end
 
-  def make_move
-    move = gets.chomp
-    if check_quit(move)
+  def make_selection_black
+    selection = gets.chomp
+    if check_quit(selection)
       @quit = true
       return
     end
-    return if move_white_piece(input_to_move(move))
+    return if select_black_piece(input_to_move(selection))
 
-    puts 'Select a valid move!'
-    make_move
-  end
-
-  def input_to_move(move)
-    move.split('').map(&:to_i)
+    puts 'Select a valid position!'
+    make_selection
   end
 
   def select_white_piece(move)
@@ -107,7 +106,33 @@ class Game
     false
   end
 
-  def move_white_piece(move)
+  def select_black_piece(move)
+    @black_pieces.each do |piece|
+      if move == piece.pos
+        @selected_piece = piece
+        return true
+      end
+    end
+    false
+  end
+
+  def make_move
+    move = gets.chomp
+    if check_quit(move)
+      @quit = true
+      return
+    end
+    return if move_piece(input_to_move(move))
+
+    puts 'Select a valid move!'
+    make_move
+  end
+
+  def input_to_move(move)
+    move.split('').map(&:to_i)
+  end
+
+  def move_piece(move)
     if @selected_piece.moves.include?(move)
       @board_to_print[7 - @selected_piece.pos[1]][@selected_piece.pos[0] + 1] = SQUARE
       @selected_piece.pos = move
@@ -117,8 +142,6 @@ class Game
     end
     false
   end
-
-  def select_black_piece; end
 
   def check_quit(input)
     return true if input == 'quit' || input == 'exit'

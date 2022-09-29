@@ -3,8 +3,8 @@
 # frozen_string_literal: true
 
 class Pawn
-  attr_reader :moves, :icon
-  attr_accessor :pos
+  attr_reader :icon
+  attr_accessor :pos, :moves
 
   def initialize(pos, color = 1)
     @moves = []
@@ -30,8 +30,8 @@ class Pawn
 end
 
 class King
-  attr_reader :moves, :icon
-  attr_accessor :pos
+  attr_reader :icon
+  attr_accessor :pos, :moves
 
   def initialize(pos, color = 1)
     @moves = []
@@ -56,8 +56,8 @@ class King
 end
 
 class Queen
-  attr_reader :moves, :icon
-  attr_accessor :pos
+  attr_reader :icon
+  attr_accessor :pos, :moves
 
   def initialize(pos, color = 1)
     @moves = []
@@ -82,8 +82,8 @@ class Queen
 end
 
 class Rook
-  attr_reader :moves, :icon
-  attr_accessor :pos
+  attr_reader :icon
+  attr_accessor :pos, :moves
 
   def initialize(pos, color = 1)
     @moves = []
@@ -110,8 +110,8 @@ class Rook
 end
 
 class Bishop
-  attr_reader :moves, :icon
-  attr_accessor :pos
+  attr_reader :icon
+  attr_accessor :pos, :moves
 
   def initialize(pos, color = 1)
     @moves = []
@@ -136,8 +136,8 @@ class Bishop
 end
 
 class Knight
-  attr_reader :moves, :icon
-  attr_accessor :pos
+  attr_reader :icon
+  attr_accessor :pos, :moves
 
   def initialize(pos, color = 1)
     @moves = []

@@ -7,7 +7,6 @@
 # Steps:
 
 # 1.
-# Replicate methods for black pieces and add 2 player gameplay. Create a current player variable and add the parameter to playing methods to select either white piece methods or black piece methods. At the end of a gameplay loop, call method again with the other player.
 # Make movements to other player's pieces legal unless it's king. Assign their pos to 'dead' (or remove the instance variable), and remove them from available pieces.
 
 # 2.
@@ -163,9 +162,23 @@ class Game
       @board_to_print[7 - @selected_piece.pos[1]][@selected_piece.pos[0] + 1] = SQUARE
       @selected_piece.pos = move
       @selected_piece.create_moves
+      check_death(move)
       return true
     end
     false
+  end
+
+  def check_death(move)
+    if @current_player == 'white'
+      @black_pieces.filter! do |piece|
+        move != piece.pos
+      end
+    end
+    if @current_player == 'black'
+      @white_pieces.filter! do |piece|
+        move != piece.pos
+      end
+    end
   end
 
   def update_moves_white

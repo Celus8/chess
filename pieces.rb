@@ -19,25 +19,25 @@ class Pawn
     @moves.push([@pos[0], @pos[1] + 2 * @color]) if in_initial_pos?
   end
 
+  # In this case, it also creates moves (diagonal killing)
   def delete_moves(allied_piece, enemy_piece)
-    @moves.delete(allied_piece.pos)
-    @moves.delete(enemy_piece.pos)
+    apos = allied_piece.pos
+    epos = enemy_piece.pos
+    @moves.delete(apos)
+    @moves.delete(epos)
+    @moves.push(epos) if epos[1] == @pos[1] + @color && (epos[0] == @pos[0] + 1 || epos[0] == @pos[0] - 1)
     if @color == 1
-      @moves.delete([enemy_piece.pos[0], enemy_piece.pos[1] + 1]) if in_initial_pos? && @pos[1] < enemy_piece.pos[1]
-      @moves.delete([allied_piece.pos[0], allied_piece.pos[1] + 1]) if in_initial_pos? && @pos[1] < allied_piece.pos[1]
+      @moves.delete([epos[0], epos[1] + 1]) if in_initial_pos? && @pos[1] < epos[1]
+      @moves.delete([apos[0], apos[1] + 1]) if in_initial_pos? && @pos[1] < apos[1]
     end
     if @color == -1
-      @moves.delete([enemy_piece.pos[0], enemy_piece.pos[1] - 1]) if in_initial_pos? && @pos[1] > enemy_piece.pos[1]
-      @moves.delete([allied_piece.pos[0], allied_piece.pos[1] - 1]) if in_initial_pos? && @pos[1] > allied_piece.pos[1]
+      @moves.delete([epos[0], epos[1] - 1]) if in_initial_pos? && @pos[1] > epos[1]
+      @moves.delete([apos[0], apos[1] - 1]) if in_initial_pos? && @pos[1] > apos[1]
     end
   end
 
   def in_initial_pos?
     @color == 1 ? @pos[1] == 1 : @pos[1] == 6
-  end
-
-  def kill
-    @pos = 'dead'
   end
 end
 
@@ -65,10 +65,6 @@ class King
   def delete_moves(allied_piece, enemy_piece)
     @moves.delete(allied_piece.pos)
     @moves.delete(enemy_piece.pos) if enemy_piece.is_a?(King)
-  end
-
-  def kill
-    @pos = 'dead'
   end
 end
 
@@ -120,10 +116,6 @@ class Queen
       7.times { |i| @moves.delete([pos[0] + i + 1, pos[1] - i - 1]) } if (@pos[0] - pos[0]).negative?
     end
   end
-
-  def kill
-    @pos = 'dead'
-  end
 end
 
 class Rook
@@ -168,10 +160,6 @@ class Rook
       (pos[0]).times { |i| @moves.delete([pos[0] - i - 1, pos[1]]) } if @pos[0] > pos[0]
     end
   end
-
-  def kill
-    @pos = 'dead'
-  end
 end
 
 class Bishop
@@ -214,10 +202,6 @@ class Bishop
       7.times { |i| @moves.delete([pos[0] + i + 1, pos[1] - i - 1]) } if (@pos[0] - pos[0]).negative?
     end
   end
-
-  def kill
-    @pos = 'dead'
-  end
 end
 
 class Knight
@@ -249,9 +233,5 @@ class Knight
   def delete_moves(allied_piece, enemy_piece)
     @moves.delete(enemy_piece.pos) if enemy_piece.is_a?(King)
     @moves.delete(allied_piece.pos)
-  end
-
-  def kill
-    @pos = 'dead'
   end
 end

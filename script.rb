@@ -7,8 +7,7 @@
 # Steps:
 
 # 1.
-# Make movements to other pieces of your own team illegal.
-# Make traspassing of pieces illegal except for the rook.
+# Replicate methods for black pieces and add 2 player gameplay. Create a current player variable and add the parameter to playing methods to select either white piece methods or black piece methods. At the end of a gameplay loop, call method again with the other player.
 # Make movements to other player's pieces legal unless it's king. Assign their pos to 'dead' (or remove the instance variable), and remove them from available pieces.
 
 # 2.
@@ -16,6 +15,9 @@
 # Make castling. If the king hasn't moved yet and isn't in check (and will not be in check during the passage) it can castle, and the rook moves at the same time.
 # Make 2 player turn-based behaviour, displaying a message each time. Make a @current_player variable that takes the values 'black' or 'white'. Add conditional to play method.
 # Winning: Remove from king all movements that are in one of the other team's allowed moves. If his pos is one of the other team's allowed moves, a message is displayed and only the king can be moved. If his pos is one of the other team's allowed moves and he has no movements, the other team wins. The game ends and a message is displayed to show who won.
+
+# 3.
+# Change board to display correct chess notation, and translate that to input with a mapping
 # Implement saving and loading of games
 # Implement AI that makes random moves
 
@@ -52,31 +54,35 @@ class Game
     @quit = false
     create_pieces
     @select_again = false
+    @current_player = 'white'
   end
 
   def play
-    update_board # Execute periodically
-    print_board # Execute periodically
+    puts 'Welcome to chess! White player starts'
+    update_board
+    print_board
     until @quit
-      make_play # Execute periodically
+      make_play(@current_player)
     end
   end
 
-  def make_play
+  def make_play(player)
     puts 'Select a piece to move'
-    make_selection_white
+    @current_player == 'white' ? make_selection_white : make_selection_black
     return if @quit
 
     puts 'Select a place to move it'
     make_move
     if @select_again
       @select_again = false
-      make_play
+      make_play(@current_player)
     end
     return if @quit
 
+    @current_player = @current_player == 'white' ? 'black' : 'white'
     update_board
     update_moves_white
+    update_moves_black
     print_board
   end
 
@@ -92,7 +98,17 @@ class Game
     make_selection_white
   end
 
-  def make_selection_black; end
+  def make_selection_black
+    selection = gets.chomp
+    if check_quit(selection)
+      @quit = true
+      return
+    end
+    return if select_black_piece(input_to_move(selection))
+
+    puts 'Select a valid position!'
+    make_selection_black
+  end
 
   def select_white_piece(move)
     @white_pieces.each do |piece|
@@ -104,7 +120,15 @@ class Game
     false
   end
 
-  def select_black_piece(move); end
+  def select_black_piece(move)
+    @black_pieces.each do |piece|
+      if move == piece.pos
+        @selected_piece = piece
+        return true
+      end
+    end
+    false
+  end
 
   def make_move
     move = gets.chomp
@@ -130,6 +154,7 @@ class Game
   def move_piece(move)
     @selected_piece.create_moves
     update_moves_white
+    update_moves_black
     if move == @selected_piece.pos
       @select_again = true
       return true
@@ -153,7 +178,15 @@ class Game
     end
   end
 
-  def update_moves_black; end
+  def update_moves_black
+    @black_pieces.each do |piece1|
+      @black_pieces.each do |piece2|
+        @white_pieces.each do |wpiece|
+          piece1.delete_moves(piece2, wpiece)
+        end
+      end
+    end
+  end
 
   def populate_boards
     8.times do |i|

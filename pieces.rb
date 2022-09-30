@@ -22,8 +22,14 @@ class Pawn
   def delete_moves(allied_piece, enemy_piece)
     @moves.delete(allied_piece.pos)
     @moves.delete(enemy_piece.pos)
-    @moves.delete([enemy_piece.pos[0], enemy_piece.pos[1] + 1]) if in_initial_pos? && @pos[1] < enemy_piece.pos[1]
-    @moves.delete([allied_piece.pos[0], allied_piece.pos[1] + 1]) if in_initial_pos? && @pos[1] < allied_piece.pos[1]
+    if @color == 1
+      @moves.delete([enemy_piece.pos[0], enemy_piece.pos[1] + 1]) if in_initial_pos? && @pos[1] < enemy_piece.pos[1]
+      @moves.delete([allied_piece.pos[0], allied_piece.pos[1] + 1]) if in_initial_pos? && @pos[1] < allied_piece.pos[1]
+    end
+    if @color == -1
+      @moves.delete([enemy_piece.pos[0], enemy_piece.pos[1] - 1]) if in_initial_pos? && @pos[1] > enemy_piece.pos[1]
+      @moves.delete([allied_piece.pos[0], allied_piece.pos[1] - 1]) if in_initial_pos? && @pos[1] > allied_piece.pos[1]
+    end
   end
 
   def in_initial_pos?

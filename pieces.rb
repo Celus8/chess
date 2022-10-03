@@ -15,6 +15,7 @@ class Pawn
   end
 
   def create_moves
+    @moves = []
     @moves.push([@pos[0], @pos[1] + @color]) unless @pos[1] + 1 > 7 || @pos[1] - 1 < 0
     @moves.push([@pos[0], @pos[1] + 2 * @color]) if in_initial_pos?
   end
@@ -25,7 +26,7 @@ class Pawn
     epos = enemy_piece.pos
     @moves.delete(apos)
     @moves.delete(epos)
-    @moves.push(epos) if epos[1] == @pos[1] + @color && (epos[0] == @pos[0] + 1 || epos[0] == @pos[0] - 1)
+    @moves.push(epos) if (epos[1] == @pos[1] + @color) && (epos[0] == @pos[0] + 1 || epos[0] == @pos[0] - 1)
     if @color == 1
       @moves.delete([epos[0], epos[1] + 1]) if in_initial_pos? && @pos[1] < epos[1]
       @moves.delete([apos[0], apos[1] + 1]) if in_initial_pos? && @pos[1] < apos[1]
@@ -54,6 +55,7 @@ class King
   end
 
   def create_moves
+    @moves = []
     (-1..1).each do |i|
       (-1..1).each do |j|
         illegal = @pos[0] + i > 7 || @pos[1] + j > 7 || @pos[0] + i < 0 || @pos[1] + j < 0
@@ -81,6 +83,7 @@ class Queen
   end
 
   def create_moves
+    @moves = []
     (-7..7).each do |i|
       (-7..7).each do |j|
         illegal = @pos[0] + i > 7 || @pos[1] + j > 7 || @pos[0] + i < 0 || @pos[1] + j < 0 || (i.abs != j.abs && i != 0 && j != 0)
@@ -131,6 +134,7 @@ class Rook
   end
 
   def create_moves
+    @moves = []
     (-7..7).each do |i|
       illegal = @pos[0] + i > 7 || @pos[0] + i < 0
       @moves.push([@pos[0] + i, @pos[1]]) unless illegal
@@ -175,6 +179,7 @@ class Bishop
   end
 
   def create_moves
+    @moves = []
     (-7..7).each do |i|
       (-7..7).each do |j|
         illegal = @pos[0] + i > 7 || @pos[1] + j > 7 || @pos[0] + i < 0 || @pos[1] + j < 0 || i.abs != j.abs
@@ -217,15 +222,15 @@ class Knight
   end
 
   def create_moves
+    @moves = []
     (1..2).each do |i|
       (1..2).each do |j|
-        illegal = @pos[0] + i > 7 || @pos[1] + j > 7 || @pos[0] + i < 0 || @pos[1] + j < 0 || i == j
-        next if illegal
+        next if i == j
 
-        @moves.push([@pos[0] + i, @pos[1] + j])
-        @moves.push([@pos[0] + i, @pos[1] - j])
-        @moves.push([@pos[0] - i, @pos[1] + j])
-        @moves.push([@pos[0] - i, @pos[1] - j])
+        @moves.push([@pos[0] + i, @pos[1] + j]) unless @pos[0] + i > 7 || @pos[1] + j > 7
+        @moves.push([@pos[0] + i, @pos[1] - j]) unless @pos[0] + i > 7 || @pos[1] - j < 0
+        @moves.push([@pos[0] - i, @pos[1] + j]) unless @pos[0] - i < 0 || @pos[1] + j > 7
+        @moves.push([@pos[0] - i, @pos[1] - j]) unless @pos[0] - i < 0 || @pos[1] - j < 0
       end
     end
   end

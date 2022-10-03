@@ -7,20 +7,19 @@
 # Steps:
 
 # 1.
-# Make movements to other player's pieces legal unless it's king. Assign their pos to 'dead' (or remove the instance variable), and remove them from available pieces.
-
-# 2.
-# Make pawn promotion. If pawn position is in the last row, pawn is dead and a message displays what to replace it with. The player writes what to replace it with and a new piece is created with the same pos.
-# Make castling. If the king hasn't moved yet and isn't in check (and will not be in check during the passage) it can castle, and the rook moves at the same time.
-# Make 2 player turn-based behaviour, displaying a message each time. Make a @current_player variable that takes the values 'black' or 'white'. Add conditional to play method.
+# Print allowed moves for the selected_piece and make it work correctly, to debug easier.
 # Winning: Remove from king all movements that are in one of the other team's allowed moves. If his pos is one of the other team's allowed moves, a message is displayed and only the king can be moved. If his pos is one of the other team's allowed moves and he has no movements, the other team wins. The game ends and a message is displayed to show who won.
 
-# 3.
-# Change board to display correct chess notation, and translate that to input with a mapping
+# 2.
 # Implement saving and loading of games
+
+# 3.
+# Make pawn promotion. If pawn position is in the last row, pawn is dead and a message displays what to replace it with. The player writes what to replace it with and a new piece is created with the same pos.
+# Make castling. If the king hasn't moved yet and isn't in check (and will not be in check during the passage) it can castle, and the rook moves at the same time.
 # Implement AI that makes random moves
 
-# 1. Create board with unicode characters
+# BUGS TO FIX:
+# 
 
 # frozen_string_literal: true
 
@@ -62,26 +61,30 @@ class Game
     print_board
     until @quit
       make_play(@current_player)
+      next if @select_again
     end
   end
 
   def make_play(player)
+    turn_message
     puts 'Select a piece to move'
     @current_player == 'white' ? make_selection_white : make_selection_black
+    show_moves
     return if @quit
 
+    print_board
+    turn_message
     puts 'Select a place to move it'
     make_move
     if @select_again
       @select_again = false
-      make_play(@current_player)
+      print_board
+      return
     end
     return if @quit
 
     @current_player = @current_player == 'white' ? 'black' : 'white'
     update_board
-    update_moves_white
-    update_moves_black
     print_board
   end
 
@@ -91,8 +94,14 @@ class Game
       @quit = true
       return
     end
-    return if select_white_piece(input_to_move(selection))
+    if select_white_piece(input_to_move(selection))
+      @selected_piece.create_moves
+      update_moves_white
+      return
+    end
 
+    print_board
+    turn_message
     puts 'Select a valid position!'
     make_selection_white
   end
@@ -103,8 +112,14 @@ class Game
       @quit = true
       return
     end
-    return if select_black_piece(input_to_move(selection))
+    if select_black_piece(input_to_move(selection))
+      @selected_piece.create_moves
+      update_moves_black
+      return
+    end
 
+    print_board
+    turn_message
     puts 'Select a valid position!'
     make_selection_black
   end
@@ -137,6 +152,8 @@ class Game
     end
     return if move_piece(input_to_move(move))
 
+    print_board
+    turn_message
     puts 'Select a valid move!'
     make_move
   end
@@ -147,19 +164,19 @@ class Game
   end
 
   def input_to_move(move)
-    move.split('').map(&:to_i)
+    input = move.split('')
+    input[0] = LETTERS.index(input[0])
+    input[1] = input[1].to_i - 1
+    puts "Input: #{input}\n"
+    input
   end
 
   def move_piece(move)
-    @selected_piece.create_moves
-    update_moves_white
-    update_moves_black
     if move == @selected_piece.pos
       @select_again = true
       return true
     end
     if @selected_piece.moves.include?(move)
-      @board_to_print[7 - @selected_piece.pos[1]][@selected_piece.pos[0] + 1] = SQUARE
       @selected_piece.pos = move
       @selected_piece.create_moves
       check_death(move)
@@ -201,36 +218,52 @@ class Game
     end
   end
 
+  def turn_message
+    puts "It's #{@current_player} player's turn"
+  end
+
+  def show_moves
+    @selected_piece.moves.each do |move|
+      @board_to_print[7 - move[1]][move[0] + 1] = '■'
+    end
+  end
+
   def populate_boards
     8.times do |i|
       8.times do |j|
         @all_moves << [i, j]
       end
     end
-    # @board_to_print.each_with_index do |arr, i|
-    #   arr[0] = letters[i]
-    # end
-    # @board_to_print[8] = [' '] + %w[1 2 3 4 5 6 7 8]
+    @board_to_print.each_with_index do |arr, i|
+      next if i == 8
+      arr[0] = 8 - i
+    end
+    8.times { |i| @board_to_print[8][i + 1] = LETTERS[i] }
+    @board_to_print[8][0] = ' '
 
     # Provisional printed board, for easier coding, the final one is above
-    @board_to_print.each_with_index do |arr, i|
-      arr[0] = 7 - i
-    end
-    @board_to_print[8] = [' '] + %w[0 1 2 3 4 5 6 7]
+    # @board_to_print.each_with_index do |arr, i|
+    #   arr[0] = 7 - i
+    # end
+    # @board_to_print[8] = [' '] + %w[0 1 2 3 4 5 6 7]
   end
 
   def update_board
     @all_moves.each do |square|
+      empty = true
       @white_pieces.each do |piece|
         if piece.pos == square
           @board_to_print[7 - square[1]][square[0] + 1] = piece.icon
+          empty = false
         end
       end
       @black_pieces.each do |piece|
         if piece.pos == square
           @board_to_print[7 - square[1]][square[0] + 1] = piece.icon
+          empty = false
         end
       end
+      @board_to_print[7 - square[1]][square[0] + 1] = SQUARE if empty
     end
   end
 

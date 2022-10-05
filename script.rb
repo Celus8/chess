@@ -1,23 +1,4 @@
-# Commit often
-# TDD as much as I can
-
-# Gameplay loop: The board is shown. The first player is whites. Which player needs to play is shown by a message. A player then inputs letter to show in what square the piece he is going to move is. The piece is highlighted in red. Then the player will select a row, and then a column. If the move is illegal, a warning sign will appear and clicking enter will do nothing. If it is legal, clicking enter will move the piece.
-# Every piece is an object, which has an array of legal moves. When the player moves, unless the move he choses is in that array, a warning will appear.
-
-# Steps:
-
-# 1.
 # Implement saving and loading of games
-
-# 3.
-# Make a method that returns either @black_pieces or @white_pieces depending on what's been given, same with @white_king and @black_king, and delete duplicate methods
-# Highlight piece when selected making it blue. When possible moves include an enemy piece to eat, make the piece color red and don't put a square over it.
-# Make pawn promotion. If pawn position is in the last row, pawn is dead and a message displays what to replace it with. The player writes what to replace it with and a new piece is created with the same pos.
-# Make castling. If the king hasn't moved yet and isn't in check (and will not be in check during the passage) it can castle, and the rook moves at the same time.
-# Make draw in case 2 kings are left
-# Implement AI that makes random moves
-
-# BUGS TO FIX:
 
 # frozen_string_literal: true
 

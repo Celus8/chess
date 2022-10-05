@@ -22,6 +22,7 @@
 # BUGS TO FIX:
 # Once the king is in check, they can cover him but not eat the pieces that are putting the king in check. The king is the only one who can do it.
 # Even if there is a check mate situation, the game doesn't end checking win, and no message displays showing check (maybe change check_win place, make sure it executes, and go through it with pry-byebug.)
+# The pieces can go through other pieces lol
 
 # frozen_string_literal: true
 
@@ -58,7 +59,6 @@ class Game
     create_pieces
     @current_player = 'white'
     @select_again = false
-    @king_in_check = false
   end
 
   def play
@@ -83,6 +83,7 @@ class Game
     end
     puts 'Select a piece to move'
     @current_player == 'white' ? make_selection_white : make_selection_black
+    update_moves
     show_moves
     return if @quit
 
@@ -94,9 +95,6 @@ class Game
       printings
       return
     end
-    if check_win
-      @quit = true
-    end
     return if @quit
   end
 
@@ -107,7 +105,6 @@ class Game
       return
     end
     if select_white_piece(input_to_move(selection))
-      update_moves
       return
     end
 
@@ -123,7 +120,6 @@ class Game
       return
     end
     if select_black_piece(input_to_move(selection))
-      update_moves
       return
     end
 
@@ -183,10 +179,10 @@ class Game
       return true
     end
     if @selected_piece.moves.include?(move)
-      old_pos = @selected_piece.pos
+      @selected_piece.pos
       @selected_piece.pos = move
       update_moves
-      @king_in_check = true if check_enemy_check
+      # delete_moves_check
       kill_piece(move)
       return true
     end
@@ -215,7 +211,7 @@ class Game
     return @black_king.in_check?(@white_pieces) if @current_player == 'white'
   end
 
-  def no_moves_white? # Checks if moves is empty for every piece
+  def no_moves_white? # Will have to change to check if there is a move that doesn't put the king in check
     no_moves = true
     @white_pieces.each do |piece|
       no_moves = false unless piece.moves.empty?
@@ -223,7 +219,7 @@ class Game
     no_moves
   end
 
-  def no_moves_black? # Checks if moves is empty for every piece
+  def no_moves_black? # Will have to change to check if there is a move that doesn't put the king in check
     no_moves = true
     @black_pieces.each do |piece|
       no_moves = false unless piece.moves.empty?
@@ -231,7 +227,7 @@ class Game
     no_moves
   end
 
-  def update_moves # Doesn't delete check moves but calls delete_moves_check
+  def update_moves # Doesn't delete check moves
     @white_pieces.each do |wpiece1|
       wpiece1.create_moves
       @black_pieces.each do |bpiece1|
@@ -244,46 +240,44 @@ class Game
         end
       end
     end
-    delete_moves_check
   end
 
-  def delete_moves_check # Deletes check moves
-    if @current_player == 'white'
-      @white_pieces.each do |piece|
-        piece.moves.filter! { |move| puts_king_in_check?(piece, move, 'white') == false }
-      end
-    end
-    if @current_player == 'black'
-      @black_pieces.each do |piece|
-        piece.moves.filter! { |move| puts_king_in_check?(piece, move, 'black') == false }
-      end
-    end
-  end
+  # def delete_moves_check
+  #   if @current_player == 'white'
+  #     @white_pieces.each do |piece|
+  #       piece.moves.filter! { |move| puts_king_in_check?(piece, move, 'white') == false }
+  #     end
+  #   end
+  #   if @current_player == 'black'
+  #     @black_pieces.each do |piece|
+  #       piece.moves.filter! { |move| puts_king_in_check?(piece, move, 'black') == false }
+  #     end
+  #   end
+  # end
 
-  def puts_king_in_check?(piece, move, color)
-    in_check = false
-    last_pos = piece.pos
-    piece.pos = move
-    killed_piece = kill_piece
-    update_game
-    if color == 'white'
-      if @white_king.in_check?
-        piece.pos = last_pos
-        killed_piece.nil? || (killed_piece.color == 1 ? @white_pieces.push(killed_piece) : @black_pieces.push(killed_piece))
-        update_game
-        return true
-      end
-    end
-    if color == 'black'
-      if @black_king.in_check?
-        piece.pos = last_pos
-        killed_piece.nil? || (killed_piece.color == 1 ? @white_pieces.push(killed_piece) : @black_pieces.push(killed_piece))
-        update_game
-        return true
-      end
-    end
-    false
-  end
+  # def puts_king_in_check?(piece, move, color)
+  #   last_pos = piece.pos
+  #   piece.pos = move
+  #   killed_piece = kill_piece(move)
+  #   update_moves
+  #   if color == 'white'
+  #     if @white_king.in_check?(@black_pieces)
+  #       piece.pos = last_pos
+  #       killed_piece.nil? || (killed_piece.color == 1 ? @white_pieces.push(killed_piece) : @black_pieces.push(killed_piece))
+  #       update_moves
+  #       return true
+  #     end
+  #   end
+  #   if color == 'black'
+  #     if @black_king.in_check?(@white_pieces)
+  #       piece.pos = last_pos
+  #       killed_piece.nil? || (killed_piece.color == 1 ? @white_pieces.push(killed_piece) : @black_pieces.push(killed_piece))
+  #       update_moves
+  #       return true
+  #     end
+  #   end
+  #   false
+  # end
 
   def check_win # Checks if the kings are in check and no_moves are true
     if @white_king.in_check?(@black_pieces) && no_moves_white?
@@ -308,10 +302,6 @@ class Game
   end
 
   def check_messages
-    if @king_in_check
-      puts 'This puts your king in check'
-      @king_in_check = false
-    end
     if @white_king.in_check?(@black_pieces)
       puts 'White king in check!'
     end

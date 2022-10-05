@@ -3,7 +3,7 @@
 # frozen_string_literal: true
 
 class Pawn
-  attr_reader :icon
+  attr_reader :icon, :color
   attr_accessor :pos, :moves
 
   def initialize(pos, color = 1)
@@ -43,7 +43,7 @@ class Pawn
 end
 
 class King
-  attr_reader :icon
+  attr_reader :icon, :color
   attr_accessor :pos, :moves
 
   def initialize(pos, color = 1)
@@ -66,12 +66,22 @@ class King
 
   def delete_moves(allied_piece, enemy_piece)
     @moves.delete(allied_piece.pos)
-    @moves.delete(enemy_piece.pos) if enemy_piece.is_a?(King)
+    enemy_piece.moves.each { |move| @moves.delete(move) }
+  end
+
+  def in_check?(enemy_pieces)
+    in_check = false
+    enemy_pieces.each do |piece|
+      piece.moves.each do |move|
+        in_check = true if move == @pos
+      end
+    end
+    in_check
   end
 end
 
 class Queen
-  attr_reader :icon
+  attr_reader :icon, :color
   attr_accessor :pos, :moves
 
   def initialize(pos, color = 1)
@@ -96,7 +106,6 @@ class Queen
     apos = allied_piece.pos
     epos = enemy_piece.pos
     @moves.delete(apos)
-    @moves.delete(epos) if enemy_piece.is_a?(King)
     delete_positions(apos)
     delete_positions(epos)
   end
@@ -122,7 +131,7 @@ class Queen
 end
 
 class Rook
-  attr_reader :icon
+  attr_reader :icon, :color
   attr_accessor :pos, :moves
 
   def initialize(pos, color = 1)
@@ -149,7 +158,6 @@ class Rook
     apos = allied_piece.pos
     epos = enemy_piece.pos
     @moves.delete(apos)
-    @moves.delete(epos) if enemy_piece.is_a?(King)
     delete_positions(apos)
     delete_positions(epos)
   end
@@ -167,7 +175,7 @@ class Rook
 end
 
 class Bishop
-  attr_reader :icon
+  attr_reader :icon, :color
   attr_accessor :pos, :moves
 
   def initialize(pos, color = 1)
@@ -192,7 +200,6 @@ class Bishop
     apos = allied_piece.pos
     epos = enemy_piece.pos
     @moves.delete(apos)
-    @moves.delete(epos) if enemy_piece.is_a?(King)
     delete_positions(apos)
     delete_positions(epos)
   end
@@ -210,7 +217,7 @@ class Bishop
 end
 
 class Knight
-  attr_reader :icon
+  attr_reader :icon, :color
   attr_accessor :pos, :moves
 
   def initialize(pos, color = 1)
@@ -236,7 +243,6 @@ class Knight
   end
 
   def delete_moves(allied_piece, enemy_piece)
-    @moves.delete(enemy_piece.pos) if enemy_piece.is_a?(King)
     @moves.delete(allied_piece.pos)
   end
 end

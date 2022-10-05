@@ -2,20 +2,7 @@
 
 require './pieces'
 
-WP = '♙'
-WK = '♔'
-WQ = '♕'
-WR = '♖'
-WB = '♗'
-WN = '♘'
-BP = '♟'
-BK = '♚'
-BQ = '♛'
-BR = '♜'
-BB = '♝'
-BN = '♞'
 SQUARE = '·'
-SELECTED_SQUARE = 'x'
 LETTERS = %w[a b c d e f g h]
 
 class Game
@@ -173,7 +160,7 @@ class Game
     false
   end
 
-  def kill_piece(move) # Works fine. Returns the killed piece
+  def kill_piece(move)
     killed_piece = nil
     if @current_player == 'white'
       @black_pieces.each do |piece|
@@ -240,7 +227,7 @@ class Game
     no_moves
   end
 
-  def update_moves # Doesn't delete check moves
+  def update_moves
     @white_pieces.each do |wpiece1|
       wpiece1.create_moves
       @black_pieces.each do |bpiece1|
@@ -255,44 +242,7 @@ class Game
     end
   end
 
-  # def delete_moves_check
-  #   if @current_player == 'white'
-  #     @white_pieces.each do |piece|
-  #       piece.moves.filter! { |move| puts_king_in_check?(piece, move, 'white') == false }
-  #     end
-  #   end
-  #   if @current_player == 'black'
-  #     @black_pieces.each do |piece|
-  #       piece.moves.filter! { |move| puts_king_in_check?(piece, move, 'black') == false }
-  #     end
-  #   end
-  # end
-
-  # def puts_king_in_check?(piece, move, color)
-  #   last_pos = piece.pos
-  #   piece.pos = move
-  #   killed_piece = kill_piece(move)
-  #   update_moves
-  #   if color == 'white'
-  #     if @white_king.in_check?(@black_pieces)
-  #       piece.pos = last_pos
-  #       killed_piece.nil? || (killed_piece.color == 1 ? @white_pieces.push(killed_piece) : @black_pieces.push(killed_piece))
-  #       update_moves
-  #       return true
-  #     end
-  #   end
-  #   if color == 'black'
-  #     if @black_king.in_check?(@white_pieces)
-  #       piece.pos = last_pos
-  #       killed_piece.nil? || (killed_piece.color == 1 ? @white_pieces.push(killed_piece) : @black_pieces.push(killed_piece))
-  #       update_moves
-  #       return true
-  #     end
-  #   end
-  #   false
-  # end
-
-  def check_win # Checks if the kings are in check and no_moves are true
+  def check_win
     if @white_king.in_check?(@black_pieces) && no_moves_white?
       puts 'Black wins! Congratulations'
       return true

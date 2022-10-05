@@ -1,8 +1,5 @@
-# Implement saving and loading of games
-
 # frozen_string_literal: true
 
-require 'pry-byebug'
 require './pieces'
 
 WP = '♙'

@@ -9,6 +9,7 @@ Upcoming features:
   - Castling
   - Draw situations
   Optional to make the game more interesting:
+  - Implement saving and loading of games
   - Implement AI that makes random moves.
   - Highlight piece when selected. When possible moves include an enemy piece to eat, make the piece color red and don't put a square over it.
 

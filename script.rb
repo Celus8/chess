@@ -7,22 +7,17 @@
 # Steps:
 
 # 1.
-# Winning: The king is initially not in check. Once a move has been made, check if it puts the king on check. If it does, reverse the move and go back to move selection. If it doesn't, go on. If it was an enemy move, set instance variable @color_on_check to true, and then check if there is any move on the team that puts the king out of check. If there is, only allow those. If there isn't, enemy wins.
-# Highlight piece when selected making it blue. When possible moves include an enemy piece to eat, make the piece color red and don't put a square over it.
-
-# 2.
 # Implement saving and loading of games
 
 # 3.
+# Make a method that returns either @black_pieces or @white_pieces depending on what's been given, same with @white_king and @black_king, and delete duplicate methods
+# Highlight piece when selected making it blue. When possible moves include an enemy piece to eat, make the piece color red and don't put a square over it.
 # Make pawn promotion. If pawn position is in the last row, pawn is dead and a message displays what to replace it with. The player writes what to replace it with and a new piece is created with the same pos.
 # Make castling. If the king hasn't moved yet and isn't in check (and will not be in check during the passage) it can castle, and the rook moves at the same time.
 # Make draw in case 2 kings are left
 # Implement AI that makes random moves
 
 # BUGS TO FIX:
-# Once the king is in check, they can cover him but not eat the pieces that are putting the king in check. The king is the only one who can do it.
-# Even if there is a check mate situation, the game doesn't end checking win, and no message displays showing check (maybe change check_win place, make sure it executes, and go through it with pry-byebug.)
-# The pieces can go through other pieces lol
 
 # frozen_string_literal: true
 
@@ -59,6 +54,7 @@ class Game
     create_pieces
     @current_player = 'white'
     @select_again = false
+    @check_message = false
   end
 
   def play
@@ -157,6 +153,10 @@ class Game
     return if move_piece(input_to_move(move))
 
     printings
+    if @check_message
+      puts 'This puts your king in check!'
+      @check_message = false
+    end
     puts 'Select a valid move!'
     make_move
   end
@@ -179,11 +179,17 @@ class Game
       return true
     end
     if @selected_piece.moves.include?(move)
-      @selected_piece.pos
+      last_pos = @selected_piece.pos
       @selected_piece.pos = move
+      killed_piece = kill_piece(move)
       update_moves
-      # delete_moves_check
-      kill_piece(move)
+      if check_allied_check
+        @check_message = true
+        @selected_piece.pos = last_pos
+        revive_piece(killed_piece)
+        update_moves
+        return false
+      end
       return true
     end
     false
@@ -206,23 +212,52 @@ class Game
     killed_piece
   end
 
+  def revive_piece(piece)
+    return if piece.nil?
+
+    piece.color == 1 ? @white_pieces.push(piece) : @black_pieces.push(piece)
+  end
+
   def check_enemy_check # Works fine
     return @white_king.in_check?(@black_pieces) if @current_player == 'black'
     return @black_king.in_check?(@white_pieces) if @current_player == 'white'
   end
 
-  def no_moves_white? # Will have to change to check if there is a move that doesn't put the king in check
+  def check_allied_check # Works fine
+    return @white_king.in_check?(@black_pieces) if @current_player == 'white'
+    return @black_king.in_check?(@white_pieces) if @current_player == 'black'
+  end
+
+  def no_moves_white?
     no_moves = true
     @white_pieces.each do |piece|
-      no_moves = false unless piece.moves.empty?
+      piece.moves.each do |move|
+        last_pos = piece.pos
+        piece.pos = move
+        killed_piece = kill_piece(move)
+        update_moves
+        no_moves = false unless @white_king.in_check?(@black_pieces)
+        piece.pos = last_pos
+        revive_piece(killed_piece)
+        update_moves
+      end
     end
     no_moves
   end
 
-  def no_moves_black? # Will have to change to check if there is a move that doesn't put the king in check
+  def no_moves_black?
     no_moves = true
     @black_pieces.each do |piece|
-      no_moves = false unless piece.moves.empty?
+      piece.moves.each do |move|
+        last_pos = piece.pos
+        piece.pos = move
+        killed_piece = kill_piece(move)
+        update_moves
+        no_moves = false unless @black_king.in_check?(@white_pieces)
+        piece.pos = last_pos
+        revive_piece(killed_piece)
+        update_moves
+      end
     end
     no_moves
   end

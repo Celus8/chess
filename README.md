@@ -4,6 +4,8 @@ A game of chess, playable on the terminal. Done as part of the The Odin Project 
 The game works fine, although there may be some bugs I haven't had the time to test (I would be happy to know if you find one!), and there are some lacking features mentioned below.
 
 Upcoming features:
+
+  - Change the board to be a hash with keys being two-dimensional arrays showing coordinates and values being piece objects.
   
   Essential for the game to be considered finished:
   - Pawn promotion

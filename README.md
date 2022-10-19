@@ -1,5 +1,5 @@
 # chess
-A game of chess, playable on the terminal. Done as part of the The Odin Project curriculum.
+A game of chess, playable on the terminal. Done as part of The Odin Project curriculum.
 
 The game works fine, although there may be some bugs I haven't had the time to test (I would be happy to know if you find one!), and there are some lacking features mentioned below.
 
